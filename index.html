@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GameVault</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(119, 70, 255, 0.28), transparent 35%),
+        radial-gradient(circle at 100% 20%, rgba(50, 120, 255, 0.18), transparent 30%),
+        #08080d;
+      color: white;
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 22px 18px;
+    }
+
+    /* HEADER */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      object-fit: cover;
+      box-shadow: 0 0 25px rgba(125, 80, 255, 0.45);
+    }
+
+    .brand-text h1 {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text p {
+      color: #888895;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .profile {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #754cff, #3c8dff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* BALANCE */
+
+    .balance-card {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border-radius: 25px;
+      background:
+        linear-gradient(135deg,
+        rgba(120, 73, 255, 0.95),
+        rgba(48, 90, 220, 0.95));
+      box-shadow: 0 15px 45px rgba(73, 59, 255, 0.22);
+      margin-bottom: 30px;
+    }
+
+    .balance-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      right: -70px;
+      top: -80px;
+    }
+
+    .balance-title {
+      color: rgba(255,255,255,0.75);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .balance {
+      font-size: 35px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+    }
+
+    .topup {
+      border: none;
+      background: white;
+      color: #24203b;
+      padding: 11px 17px;
+      border-radius: 13px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* SECTION */
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-header h2 {
+      font-size: 19px;
+    }
+
+    .see-all {
+      color: #967cff;
+      font-size: 13px;
+    }
+
+    /* GAMES */
+
+    .games {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .game {
+      position: relative;
+      overflow: hidden;
+      min-height: 145px;
+      border-radius: 22px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: linear-gradient(145deg, #171722, #0e0e14);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 0.15s;
+    }
+
+    .game:active {
+      transform: scale(0.96);
+    }
+
+    .game-icon {
+      position: absolute;
+      right: 13px;
+      top: 13px;
+      width: 58px;
+      height: 58px;
+      border-radius: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .game h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .game p {
+      color: #8d8d99;
+      font-size: 12px;
+    }
+
+    .brawl {
+      background:
+        radial-gradient(circle at 90% 10%, rgba(0,150,255,.25), transparent 45%),
+        #11131c;
+    }
+
+    .roblox {
+      background:
+        radial-gradient(circle at 90% 10%, rgba(255,70,70,.22), transparent 45%),
+        #111116;
+    }
+
+    .fortnite {
+      background:
+        radial-gradient(circle at 90% 10%, rgba(150,70,255,.25), transparent 45%),
+        #11111a;
+    }
+
+    .minecraft {
+      background:
+        radial-gradient(circle at 90% 10%, rgba(60,190,90,.22), transparent 45%),
+        #101613;
+    }
+
+    /* INFO */
+
+    .info {
+      margin-top: 25px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .info-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(120,80,255,0.13);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-text strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .info-text span {
+      color: #777783;
+      font-size: 11px;
+    }
+
+    /* NAVIGATION */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 580px;
+      height: 67px;
+      border-radius: 22px;
+      background: rgba(18,18,27,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-item {
+      color: #696974;
+      font-size: 10px;
+      text-align: center;
+      min-width: 55px;
+    }
+
+    .nav-item div {
+      font-size: 20px;
+      margin-bottom: 3px;
+    }
+
+    .nav-item.active {
+      color: #9a80ff;
+    }
+
+    @media (min-width: 500px) {
+      .games {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .game {
+        min-height: 170px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="header">
+
+    <div class="brand">
+      <img src="logo.png" alt="GameVault">
+
+      <div class="brand-text">
+        <h1>GameVault</h1>
+        <p>Gaming marketplace</p>
+      </div>
+    </div>
+
+    <div class="profile">
+      👤
+    </div>
+
+  </header>
+
+
+  <section class="balance-card">
+
+    <div class="balance-title">
+      Ваш баланс
+    </div>
+
+    <div class="balance">
+      €0.00
+    </div>
+
+    <button class="topup">
+      ＋ Пополнить
+    </button>
+
+  </section>
+
+
+  <div class="section-header">
+    <h2>🔥 Популярное</h2>
+    <span class="see-all">Все игры →</span>
+  </div>
+
+
+  <section class="games">
+
+    <div class="game brawl">
+      <div class="game-icon">💎</div>
+
+      <h3>Brawl Stars</h3>
+      <p>Gems & passes</p>
+    </div>
+
+
+    <div class="game roblox">
+      <div class="game-icon">🟥</div>
+
+      <h3>Roblox</h3>
+      <p>Robux & items</p>
+    </div>
+
+
+    <div class="game fortnite">
+      <div class="game-icon">⚡</div>
+
+      <h3>Fortnite</h3>
+      <p>V-Bucks</p>
+    </div>
+
+
+    <div class="game minecraft">
+      <div class="game-icon">🌱</div>
+
+      <h3>Minecraft</h3>
+      <p>Coins & items</p>
+    </div>
+
+  </section>
+
+
+  <section class="info">
+
+    <div class="info-row">
+
+      <div class="info-icon">⚡</div>
+
+      <div class="info-text">
+        <strong>Быстрая доставка</strong>
+        <span>Получайте заказ максимально быстро</span>
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-icon">🔒</div>
+
+      <div class="info-text">
+        <strong>Безопасная покупка</strong>
+        <span>Ваши данные защищены</span>
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-icon">💬</div>
+
+      <div class="info-text">
+        <strong>Поддержка</strong>
+        <span>Мы всегда готовы помочь</span>
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<nav class="bottom-nav">
+
+  <div class="nav-item active">
+    <div>🏠</div>
+    Главная
+  </div>
+
+  <div class="nav-item">
+    <div>🎮</div>
+    Игры
+  </div>
+
+  <div class="nav-item">
+    <div>📦</div>
+    Заказы
+  </div>
+
+  <div class="nav-item">
+    <div>👤</div>
+    Профиль
+  </div>
+
+</nav>
+
+
+<script>
+
+  // Telegram Mini App
+  const tg = window.Telegram.WebApp;
+
+  tg.ready();
+  tg.expand();
+
+</script>
+
+</body>
+</html>
