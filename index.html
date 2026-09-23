@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>GameVault — Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 20% 0%,rgba(92,54,220,.28),transparent 35%),radial-gradient(circle at 100% 30%,rgba(32,91,220,.18),transparent 35%),#07080d;color:#fff;min-height:100vh;padding-bottom:100px}
+button,input{font-family:inherit}button{border:0;cursor:pointer}.app{width:100%;max-width:600px;margin:auto;padding:18px 16px}
+.page{display:none}.page.active{display:block;animation:pageIn .32s ease both}@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.brand-logo{width:58px;height:58px;border-radius:18px;object-fit:cover}.brand-title{font-size:24px;font-weight:800}.brand-subtitle{color:#9293a3;font-size:14px;margin-top:3px}
+.profile{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#7155ff,#356ce8);display:flex;align-items:center;justify-content:center;font-size:27px}
+
+.promo-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,rgba(111,78,239,.22),rgba(57,105,232,.12));border:1px solid rgba(139,116,255,.18);border-radius:22px;padding:18px;margin-bottom:13px;overflow:hidden;position:relative}.promo-banner:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;right:-45px;top:-55px;background:rgba(130,100,255,.12);filter:blur(2px)}.promo-copy{position:relative;z-index:1}.promo-kicker{font-size:11px;color:#a895ff;font-weight:800;letter-spacing:.5px}.promo-title{font-size:17px;font-weight:800;margin-top:5px}.promo-text{font-size:12px;color:#9293a3;margin-top:5px;line-height:1.35;max-width:310px}.promo-emoji{font-size:40px;position:relative;z-index:1;animation:floatEmoji 2.8s ease-in-out infinite}@keyframes floatEmoji{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:27px}.quick-actions button{background:#11131b;border:1px solid rgba(255,255,255,.07);color:#fff;border-radius:17px;padding:13px 7px;text-align:left;transition:transform .18s ease,border-color .18s ease}.quick-actions button:active{transform:scale(.96)}.quick-actions span{display:block;font-size:20px;margin-bottom:7px}.quick-actions b{display:block;font-size:13px}.quick-actions small{display:block;color:#777987;font-size:11px;margin-top:2px}
+
+.trust-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:15px 0}.trust-strip div{background:rgba(18,19,27,.7);border:1px solid rgba(255,255,255,.05);border-radius:15px;padding:11px 7px;text-align:center;font-size:12px}.trust-strip b{display:block;margin-top:3px}.trust-strip small{display:block;color:#777987;font-size:10px;margin-top:2px}
+.balance{background:radial-gradient(circle at 100% 0%,rgba(255,255,255,.12),transparent 35%),linear-gradient(135deg,#6440e8,#2f61d8);border-radius:28px;padding:27px;min-height:185px;box-shadow:0 15px 40px rgba(54,60,220,.22);margin-bottom:30px}.balance-title{color:rgba(255,255,255,.78)}.balance-value{font-size:46px;font-weight:800;margin:8px 0 18px}.balance-hint{font-size:12px;color:rgba(255,255,255,.62);margin:-10px 0 14px}.topup{background:#fff;color:#171722;padding:13px 22px;border-radius:15px;font-weight:700}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.section-title{font-size:28px;font-weight:800}.section-link{color:#9275ff;background:none;font-weight:600}
+.games-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.game-card{min-height:190px;border-radius:25px;padding:17px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.07);background:#11131b;text-align:left;transition:.15s}.game-card:active,.product:active{transform:scale(.97)}
+.game-card.brawl{background:radial-gradient(circle at 100% 0%,rgba(44,135,255,.25),transparent 45%),#10131a}.game-card.roblox{background:radial-gradient(circle at 100% 0%,rgba(255,52,52,.22),transparent 45%),#121216}.game-card.fortnite{background:radial-gradient(circle at 100% 0%,rgba(123,55,255,.25),transparent 45%),#12111a}.game-card.minecraft{background:radial-gradient(circle at 100% 0%,rgba(48,188,91,.22),transparent 45%),#101612}
+.game-card.clashroyale{background:radial-gradient(circle at 100% 0%,rgba(54,119,255,.25),transparent 45%),#10131b}
+.game-card.clashclans{background:radial-gradient(circle at 100% 0%,rgba(255,128,35,.23),transparent 45%),#15120f}
+.game-image{width:72px;height:72px;border-radius:21px;object-fit:cover;position:absolute;right:15px;top:15px}.game-name{position:absolute;left:17px;bottom:43px;font-size:21px;font-weight:750}.game-description{position:absolute;left:17px;bottom:17px;color:#9293a3;font-size:14px}
+.features{margin-top:30px;background:rgba(18,19,27,.9);border:1px solid rgba(255,255,255,.07);border-radius:25px;overflow:hidden}.feature{display:flex;align-items:center;gap:15px;padding:18px}.feature+.feature{border-top:1px solid rgba(255,255,255,.06)}.feature-icon{width:45px;height:45px;border-radius:14px;background:rgba(105,75,255,.14);display:flex;align-items:center;justify-content:center;font-size:22px}.feature-title{font-weight:700}.feature-text{color:#858694;font-size:13px;margin-top:3px}
+.back-button{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.08);padding:11px 15px;border-radius:13px;font-weight:600;margin-bottom:20px}.game-page-header{display:flex;align-items:center;gap:15px;margin-bottom:25px}.game-page-logo{width:70px;height:70px;border-radius:20px;object-fit:cover}.game-page-title{font-size:27px;font-weight:800}.game-page-subtitle{color:#9293a3;margin-top:4px}.offers-title{font-size:22px;font-weight:750;margin-bottom:14px}
+.products{display:flex;flex-direction:column;gap:12px}.product{background:rgba(18,20,29,.95);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.15s}.product-left{display:flex;align-items:center;gap:13px}.product-icon{width:48px;height:48px;border-radius:14px;background:rgba(99,70,255,.13);display:flex;align-items:center;justify-content:center;font-size:24px}.product-name{font-size:17px;font-weight:700}.product-info{color:#858694;font-size:13px;margin-top:4px}.product-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.price{font-weight:800}.add-button{background:linear-gradient(135deg,#7050ef,#4568e8);color:#fff;padding:10px 13px;border-radius:12px;font-weight:700}
+.all-games-title{font-size:30px;font-weight:800;margin-bottom:7px}.all-games-subtitle{color:#888997;margin-bottom:23px}
+.bottom-nav{position:fixed;left:50%;bottom:13px;transform:translateX(-50%);width:calc(100% - 30px);max-width:570px;background:rgba(19,20,29,.94);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);border-radius:25px;display:grid;grid-template-columns:repeat(4,1fr);padding:8px;z-index:100}.nav-button{background:none;color:#686a78;padding:8px 3px;border-radius:17px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}.nav-button.active{color:#987dff}.nav-icon{font-size:22px}
+.cart-fab{position:fixed;right:18px;bottom:95px;width:58px;height:58px;border-radius:19px;background:linear-gradient(135deg,#7050ef,#4568e8);color:#fff;font-size:25px;z-index:90;box-shadow:0 10px 30px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center}.cart-count{position:absolute;right:-4px;top:-5px;min-width:22px;height:22px;border-radius:50%;background:#ff4d67;color:#fff;font-size:12px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 5px}
+.cart-item{animation:cardIn .28s ease both;display:flex;align-items:center;gap:12px;background:#12141d;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px;margin-bottom:10px}.cart-item-main{flex:1}.cart-item-name{font-weight:700}.cart-item-game{font-size:12px;color:#858694;margin-top:4px}.cart-item-price{font-weight:800}.qty{display:flex;align-items:center;gap:8px;margin-top:8px}.qty button{width:27px;height:27px;border-radius:9px;background:#292b36;color:#fff;font-size:17px}.checkout-card{margin-top:18px;background:linear-gradient(135deg,#171925,#11131b);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:18px}.summary-row{display:flex;justify-content:space-between;color:#9293a3;margin-bottom:10px}.summary-total{display:flex;justify-content:space-between;font-size:22px;font-weight:800;margin:14px 0}.checkout-button{width:100%;padding:15px;border-radius:15px;background:linear-gradient(135deg,#7050ef,#4568e8);color:#fff;font-weight:800;font-size:16px} .checkout-button:active,.add-button:active,.nav-button:active{transform:scale(.97);opacity:.9}.cart-action{position:sticky;bottom:10px;margin-top:14px;padding:14px;background:rgba(15,16,25,.96);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);z-index:20}.cart-action-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:#aaa}.cart-action-total strong{color:#fff;font-size:20px}.cart-action .checkout-button{margin:0}
+.form-card{background:#12141d;border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:18px;margin-bottom:12px}.form-title{font-size:19px;font-weight:800;margin-bottom:14px}.field{width:100%;background:#0b0c11;color:#fff;border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:14px;margin-bottom:10px;outline:none}.field:focus{border-color:#7050ef}.pay-option{display:flex;align-items:center;justify-content:space-between;background:#0d0f15;border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px;margin-bottom:9px}.pay-option input{accent-color:#7050ef}.checkout-note{font-size:13px;color:#858694;line-height:1.45;margin-top:10px}
+.toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-42%) scale(.86);background:rgba(24,26,36,.97);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.45);border-radius:22px;padding:22px 28px;z-index:300;text-align:center;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1);min-width:210px}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}.toast-icon{font-size:38px;margin-bottom:8px}.toast-title{font-size:19px;font-weight:800}.toast-text{font-size:13px;color:#9293a3;margin-top:5px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;z-index:200}.modal.show{display:flex}.modal-box{width:100%;max-width:600px;background:#12141d;border-radius:28px 28px 0 0;padding:25px 20px 30px}.modal-title{font-size:23px;font-weight:800;margin-bottom:8px}.modal-text{color:#8b8c99;line-height:1.5;margin-bottom:20px;white-space:pre-line}.modal-actions{display:flex;gap:10px}.modal-cancel,.modal-confirm{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:15px}.modal-cancel{background:#242630;color:#fff}.modal-confirm{background:linear-gradient(135deg,#7050ef,#4568e8);color:#fff}
+.empty{text-align:center;padding:45px 15px;color:#858694}.empty-icon{font-size:45px;margin-bottom:12px}
+
+/* Smooth page transitions + subtle animated ambient background */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;background:linear-gradient(120deg,rgba(105,75,255,.025),transparent 35%,rgba(45,111,255,.025));animation:bgShift 12s ease-in-out infinite alternate}
+.ambient{position:fixed;pointer-events:none;border-radius:50%;filter:blur(65px);opacity:.18;z-index:-1;mix-blend-mode:screen}
+.ambient-one{width:230px;height:230px;left:-90px;top:8%;background:#704cff;animation:floatOne 13s ease-in-out infinite}
+.ambient-two{width:190px;height:190px;right:-75px;top:38%;background:#287cff;animation:floatTwo 16s ease-in-out infinite}
+.ambient-three{width:160px;height:160px;left:30%;bottom:3%;background:#9b4dff;opacity:.11;animation:floatThree 18s ease-in-out infinite}
+@keyframes floatOne{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(35px,45px,0) scale(1.12)}}
+@keyframes floatTwo{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-35px,-25px,0) scale(1.16)}}
+@keyframes floatThree{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(20px,-35px,0) scale(1.1)}}
+@keyframes bgShift{from{transform:scale(1)}to{transform:scale(1.04)}}
+.page{opacity:0;transform:translateY(10px);transition:opacity .25s ease,transform .3s ease}.page.active{opacity:1;transform:translateY(0);animation:pageIn .3s ease both}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.game-card,.product,.feature,.cart-item,.checkout-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.game-card:hover,.product:hover,.feature:hover,.cart-item:hover{transform:translateY(-2px);border-color:rgba(140,115,255,.2);box-shadow:0 12px 30px rgba(0,0,0,.16)}
+.cart-fab{animation:cartPulse 3s ease-in-out infinite}
+@keyframes cartPulse{0%,100%{box-shadow:0 10px 30px rgba(79,70,229,.35)}50%{box-shadow:0 12px 38px rgba(112,80,239,.55)}}
+.toast-pop{animation:toastPop .28s ease both}
+@keyframes toastPop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:380px){.game-card{min-height:175px}.game-name{font-size:18px}.balance-value{font-size:40px}.product{padding:12px}}
+</style>
+</head>
+<body>
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div><div class="ambient ambient-three"></div>
+<div class="app">
+
+<section id="homePage" class="page active">
+<header class="header">
+<div class="brand"><img src="gamevault_logo.png" class="brand-logo"><div><div class="brand-title">GameVault</div><div class="brand-subtitle">Gaming marketplace</div></div></div>
+<div class="profile">👤</div>
+</header>
+<div class="balance"><div class="balance-title">Ваш баланс</div><div class="balance-value">₽0.00</div><div class="balance-hint">Баланс GameVault</div><button class="topup" onclick="topUp()">＋ Пополнить</button></div>
+
+<div class="promo-banner">
+  <div class="promo-copy">
+    <div class="promo-kicker">🎁 БОНУСЫ GAMEVAULT</div>
+    <div class="promo-title">Пополняй баланс и покупай быстрее</div>
+    <div class="promo-text">Удобная оплата, история заказов и поддержка в одном месте.</div>
+  </div>
+  <div class="promo-emoji">⚡</div>
+</div>
+<div class="quick-actions">
+  <button onclick="topUp()"><span>💳</span><b>Пополнить</b><small>Баланс</small></button>
+  <button onclick="showPage('ordersPage')"><span>📦</span><b>Заказы</b><small>История</small></button>
+  <button onclick="showPage('profilePage')"><span>👤</span><b>Профиль</b><small>Аккаунт</small></button>
+</div>
+<div class="section-head"><div class="section-title">🔥 Популярное</div><button class="section-link" onclick="showPage('allGamesPage')">Все игры →</button></div>
+<div class="games-grid">
+<button class="game-card brawl" onclick="openGame('brawlstars')"><img src="brawlstars_logo.png" class="game-image"><div class="game-name">Brawl Stars</div><div class="game-description">Gems & passes</div></button>
+<button class="game-card roblox" onclick="openGame('roblox')"><img src="roblox_logo.png" class="game-image"><div class="game-name">Roblox</div><div class="game-description">Robux & items</div></button>
+<button class="game-card fortnite" onclick="openGame('fortnite')"><img src="fortnite_logo.png" class="game-image"><div class="game-name">Fortnite</div><div class="game-description">V-Bucks</div></button>
+<button class="game-card minecraft" onclick="openGame('minecraft')"><img src="minecraft_logo.png" class="game-image"><div class="game-name">Minecraft</div><div class="game-description">Coins & items</div></button>
+</div>
+
+<div class="trust-strip"><div>⚡ <b>Быстро</b><small>доставка</small></div><div>🔒 <b>Безопасно</b><small>платежи</small></div><div>💬 <b>Поддержка</b><small>24/7</small></div></div>
+<div class="features">
+<div class="feature"><div class="feature-icon">⚡</div><div><div class="feature-title">Быстрая доставка</div><div class="feature-text">Получайте игровые товары максимально быстро</div></div></div>
+<div class="feature"><div class="feature-icon">🔒</div><div><div class="feature-title">Безопасная покупка</div><div class="feature-text">Ваши данные находятся под защитой</div></div></div>
+<div class="feature"><div class="feature-icon">💬</div><div><div class="feature-title">Поддержка</div><div class="feature-text">Мы всегда готовы помочь</div></div></div>
+</div>
+</section>
+
+<section id="allGamesPage" class="page">
+<button class="back-button" onclick="showPage('homePage')">← Назад</button>
+<div class="all-games-title">Все игры 🎮</div><div class="all-games-subtitle">Выберите игру, чтобы посмотреть доступные товары</div>
+<div class="games-grid">
+<button class="game-card brawl" onclick="openGame('brawlstars')"><img src="brawlstars_logo.png" class="game-image"><div class="game-name">Brawl Stars</div><div class="game-description">Gems & passes</div></button>
+<button class="game-card roblox" onclick="openGame('roblox')"><img src="roblox_logo.png" class="game-image"><div class="game-name">Roblox</div><div class="game-description">Robux & items</div></button>
+<button class="game-card fortnite" onclick="openGame('fortnite')"><img src="fortnite_logo.png" class="game-image"><div class="game-name">Fortnite</div><div class="game-description">V-Bucks</div></button>
+<button class="game-card minecraft" onclick="openGame('minecraft')"><img src="minecraft_logo.png" class="game-image"><div class="game-name">Minecraft</div><div class="game-description">Coins & items</div></button>
+<button class="game-card clashroyale" onclick="openGame('clashroyale')"><img src="clashroyale_logo.png" class="game-image"><div class="game-name">Clash Royale</div><div class="game-description">Gems & passes</div></button>
+<button class="game-card clashclans" onclick="openGame('clashofclans')"><img src="clashofclans_logo.png" class="game-image"><div class="game-name">Clash of Clans</div><div class="game-description">Gems & gold</div></button>
+</div>
+</section>
+
+<section id="brawlstarsPage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button><div class="game-page-header"><img src="brawlstars_logo.png" class="game-page-logo"><div><div class="game-page-title">Brawl Stars</div><div class="game-page-subtitle">Gems & passes</div></div></div>
+<div class="offers-title">💎 Пополнение гемов</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">30 гемов</div><div class="product-info">Brawl Stars</div></div></div><div class="product-actions"><div class="price">300 ₽</div><button class="add-button" onclick="addToCart('Brawl Stars','30 гемов',300)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">100 гемов</div><div class="product-info">Brawl Stars</div></div></div><div class="product-actions"><div class="price">899 ₽</div><button class="add-button" onclick="addToCart('Brawl Stars','100 гемов',899)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">500 гемов</div><div class="product-info">Brawl Stars</div></div></div><div class="product-actions"><div class="price">1 399 ₽</div><button class="add-button" onclick="addToCart('Brawl Stars','500 гемов',1399)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">1000 гемов</div><div class="product-info">Brawl Stars</div></div></div><div class="product-actions"><div class="price">2 499 ₽</div><button class="add-button" onclick="addToCart('Brawl Stars','1000 гемов',2499)">＋ Добавить</button></div></div>
+</div></section>
+
+<section id="robloxPage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button><div class="game-page-header"><img src="roblox_logo.png" class="game-page-logo"><div><div class="game-page-title">Roblox</div><div class="game-page-subtitle">Robux & items</div></div></div>
+<div class="offers-title">🟥 Доступные Robux</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">🟥</div><div><div class="product-name">400 Robux</div><div class="product-info">Roblox</div></div></div><div class="product-actions"><div class="price">399 ₽</div><button class="add-button" onclick="addToCart('Roblox','400 Robux',399)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">🟥</div><div><div class="product-name">800 Robux</div><div class="product-info">Roblox</div></div></div><div class="product-actions"><div class="price">749 ₽</div><button class="add-button" onclick="addToCart('Roblox','800 Robux',749)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">🟥</div><div><div class="product-name">1700 Robux</div><div class="product-info">Roblox</div></div></div><div class="product-actions"><div class="price">1 499 ₽</div><button class="add-button" onclick="addToCart('Roblox','1700 Robux',1499)">＋ Добавить</button></div></div>
+</div></section>
+
+<section id="fortnitePage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button><div class="game-page-header"><img src="fortnite_logo.png" class="game-page-logo"><div><div class="game-page-title">Fortnite</div><div class="game-page-subtitle">V-Bucks</div></div></div>
+<div class="offers-title">⚡ V-Bucks</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">⚡</div><div><div class="product-name">1 000 V-Bucks</div><div class="product-info">Fortnite</div></div></div><div class="product-actions"><div class="price">799 ₽</div><button class="add-button" onclick="addToCart('Fortnite','1 000 V-Bucks',799)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">⚡</div><div><div class="product-name">2 800 V-Bucks</div><div class="product-info">Fortnite</div></div></div><div class="product-actions"><div class="price">1 999 ₽</div><button class="add-button" onclick="addToCart('Fortnite','2 800 V-Bucks',1999)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">⚡</div><div><div class="product-name">5 000 V-Bucks</div><div class="product-info">Fortnite</div></div></div><div class="product-actions"><div class="price">3 499 ₽</div><button class="add-button" onclick="addToCart('Fortnite','5 000 V-Bucks',3499)">＋ Добавить</button></div></div>
+</div></section>
+
+<section id="minecraftPage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button><div class="game-page-header"><img src="minecraft_logo.png" class="game-page-logo"><div><div class="game-page-title">Minecraft</div><div class="game-page-subtitle">Coins & items</div></div></div>
+<div class="offers-title">🌱 Монеты Minecraft</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">🌱</div><div><div class="product-name">320 монет</div><div class="product-info">Minecraft</div></div></div><div class="product-actions"><div class="price">299 ₽</div><button class="add-button" onclick="addToCart('Minecraft','320 монет',299)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">🌱</div><div><div class="product-name">1020 монет</div><div class="product-info">Minecraft</div></div></div><div class="product-actions"><div class="price">799 ₽</div><button class="add-button" onclick="addToCart('Minecraft','1020 монет',799)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">🌱</div><div><div class="product-name">3500 монет</div><div class="product-info">Minecraft</div></div></div><div class="product-actions"><div class="price">2 499 ₽</div><button class="add-button" onclick="addToCart('Minecraft','3500 монет',2499)">＋ Добавить</button></div></div>
+</div></section>
+
+
+<section id="clashroyalePage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button>
+<div class="game-page-header"><img src="clashroyale_logo.png" class="game-page-logo"><div><div class="game-page-title">Clash Royale</div><div class="game-page-subtitle">Gems & passes</div></div></div>
+<div class="offers-title">💎 Доступные товары</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">80 Gems</div><div class="product-info">Clash Royale</div></div></div><div class="product-actions"><div class="price">299 ₽</div><button class="add-button" onclick="addToCart('Clash Royale','80 Gems',299)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">500 Gems</div><div class="product-info">Clash Royale</div></div></div><div class="product-actions"><div class="price">1 099 ₽</div><button class="add-button" onclick="addToCart('Clash Royale','500 Gems',1099)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">👑</div><div><div class="product-name">Pass Royale</div><div class="product-info">Clash Royale</div></div></div><div class="product-actions"><div class="price">1 199 ₽</div><button class="add-button" onclick="addToCart('Clash Royale','Pass Royale',1199)">＋ Добавить</button></div></div>
+</div></section>
+<section id="clashofclansPage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button>
+<div class="game-page-header"><img src="clashofclans_logo.png" class="game-page-logo"><div><div class="game-page-title">Clash of Clans</div><div class="game-page-subtitle">Gems & resources</div></div></div>
+<div class="offers-title">💎 Доступные товары</div><div class="products">
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">500 Gems</div><div class="product-info">Clash of Clans</div></div></div><div class="product-actions"><div class="price">399 ₽</div><button class="add-button" onclick="addToCart('Clash of Clans','500 Gems',399)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">💎</div><div><div class="product-name">1 200 Gems</div><div class="product-info">Clash of Clans</div></div></div><div class="product-actions"><div class="price">799 ₽</div><button class="add-button" onclick="addToCart('Clash of Clans','1 200 Gems',799)">＋ Добавить</button></div></div>
+<div class="product"><div class="product-left"><div class="product-icon">🏰</div><div><div class="product-name">2 500 Gems</div><div class="product-info">Clash of Clans</div></div></div><div class="product-actions"><div class="price">1 499 ₽</div><button class="add-button" onclick="addToCart('Clash of Clans','2 500 Gems',1499)">＋ Добавить</button></div></div>
+</div></section>
+<section id="cartPage" class="page">
+<button class="back-button" onclick="goBack()">← Назад</button><div class="all-games-title">🛒 Корзина</div><div class="all-games-subtitle">Проверьте товары перед оформлением</div>
+<div id="cartItems"></div><div id="cartSummary"></div>
+</section>
+
+<section id="checkoutPage" class="page">
+<button class="back-button" onclick="showPage('cartPage')">← Корзина</button>
+<div class="all-games-title">💳 Оплата</div>
+<div class="all-games-subtitle">Выберите удобный способ оплаты</div>
+
+<div class="form-card">
+<div class="form-title">🎮 Данные игрока</div>
+<input id="playerId" class="field" placeholder="ID / Player ID">
+<input id="playerNick" class="field" placeholder="Никнейм (необязательно)">
+</div>
+
+<div class="form-card">
+<div class="form-title">Способ оплаты</div>
+<label class="pay-option"><span>💳 Банковская карта</span><input type="radio" name="payment" value="card" checked></label>
+<label class="pay-option"><span>₿ Криптовалюта</span><input type="radio" name="payment" value="crypto"></label>
+<div class="checkout-note">После выбора способа оплаты нажмите кнопку ниже. Реальный платёжный провайдер подключим следующим этапом.</div>
+</div>
+
+<div id="checkoutSummary" class="checkout-card"></div>
+<button class="checkout-button" onclick="placeOrder()">Перейти к оплате →</button>
+</section>
+
+<section id="ordersPage" class="page">
+<div class="all-games-title">📦 Заказы</div><div class="all-games-subtitle">История ваших покупок</div><div id="ordersList"></div>
+</section>
+
+<section id="profilePage" class="page">
+<div class="all-games-title">👤 Профиль</div><div class="all-games-subtitle">Информация о вашем аккаунте</div>
+<div class="features"><div class="feature"><div class="feature-icon">💰</div><div><div class="feature-title">Баланс</div><div class="feature-text">₽0.00</div></div></div><div class="feature"><div class="feature-icon">📦</div><div><div class="feature-title">Заказов</div><div class="feature-text" id="profileOrderCount">0</div></div></div></div>
+</section>
+</div>
+
+<button class="cart-fab" onclick="openCart()">🛒<span id="cartCount" class="cart-count">0</span></button>
+
+<nav class="bottom-nav">
+<button class="nav-button active" onclick="showPage('homePage');setActiveNav(this)"><span class="nav-icon">🏠</span>Главная</button>
+<button class="nav-button" onclick="showPage('allGamesPage');setActiveNav(this)"><span class="nav-icon">🎮</span>Игры</button>
+<button class="nav-button" onclick="openCart();setActiveNav(null)"><span class="nav-icon">🛒</span>Корзина</button>
+<button class="nav-button" onclick="showPage('profilePage');setActiveNav(this)"><span class="nav-icon">👤</span>Профиль</button>
+</nav>
+
+<div class="toast" id="toast"><div class="toast-icon" id="toastIcon">✅</div><div class="toast-title" id="toastTitle">Успешно!</div><div class="toast-text" id="toastText"></div></div>
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-title" id="modalTitle"></div><div class="modal-text" id="modalText"></div><div class="modal-actions"><button class="modal-cancel" onclick="closeModal()">Отмена</button><button class="modal-confirm" onclick="closeModal()">Понятно</button></div></div></div>
+
+<script>
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
+let previousPage="homePage";
+let cart=[];
+let orders=[];
+try{cart=JSON.parse(localStorage.getItem("gamevault_cart")||"[]");if(!Array.isArray(cart))cart=[]}catch(e){cart=[]}
+try{orders=JSON.parse(localStorage.getItem("gamevault_orders")||"[]");if(!Array.isArray(orders))orders=[]}catch(e){orders=[]}
+
+function save(){localStorage.setItem("gamevault_cart",JSON.stringify(cart));localStorage.setItem("gamevault_orders",JSON.stringify(orders));updateCartBadge()}
+function showPage(id){const cur=document.querySelector(".page.active");if(cur&&cur.id!==id)previousPage=cur.id;document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id)?.classList.add("active");window.scrollTo({top:0,behavior:"smooth"});if(id==="cartPage")renderCart();if(id==="checkoutPage")renderCheckout();if(id==="ordersPage")renderOrders()}
+function goBack(){showPage(previousPage||"homePage")}
+function openGame(game){previousPage=document.querySelector(".page.active")?.id||"homePage";showPage(game+"Page")}
+function setActiveNav(btn){document.querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active")}
+function openCart(){previousPage=document.querySelector(".page.active")?.id||"homePage";showPage("cartPage")}
+function updateCartBadge(){const count=cart.reduce((s,i)=>s+i.qty,0),el=document.getElementById("cartCount");el.textContent=count;el.style.display=count?"flex":"none"}
+function addToCart(game,name,price){const existing=cart.find(i=>i.game===game&&i.name===name);if(existing)existing.qty++;else cart.push({game,name,price,qty:1});save();updateCartBadge();showSuccess("Успешно! ✅","Товар добавлен в корзину");}
+function showSuccess(title,text){
+  const toast=document.getElementById("toast");
+  const icon=document.getElementById("toastIcon");
+  const titleEl=document.getElementById("toastTitle");
+  const textEl=document.getElementById("toastText");
+
+  icon.textContent="✅";
+  titleEl.textContent=title;
+  textEl.textContent=text;
+
+  toast.classList.remove("show");
+  void toast.offsetWidth;
+  toast.classList.add("show");
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>{
+    toast.classList.remove("show");
+  },1600);
+}
+function changeQty(index,delta){cart[index].qty+=delta;if(cart[index].qty<=0)cart.splice(index,1);save();renderCart()}
+function cartTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
+function renderCart(){
+ const box=document.getElementById("cartItems"),summary=document.getElementById("cartSummary"); if(!box||!summary)return;
+ if(!cart.length){box.innerHTML='<div class="empty"><div class="empty-icon">🛒</div><div>Корзина пуста</div><div style="margin-top:6px">Добавьте товары из каталога</div><button class="add-button" style="margin-top:18px" onclick="showPage('allGamesPage')">🎮 Перейти к играм</button></div>';summary.innerHTML="";return}
+ box.innerHTML=cart.map((i,n)=>`<div class="cart-item"><div class="product-icon">🎮</div><div class="cart-item-main"><div class="cart-item-name">${i.name}</div><div class="cart-item-game">${i.game}</div><div class="qty"><button onclick="changeQty(${n},-1)">−</button><b>${i.qty}</b><button onclick="changeQty(${n},1)">+</button></div></div><div class="cart-item-price">${(i.price*i.qty).toLocaleString("ru-RU")} ₽</div></div>`).join("");
+ summary.innerHTML=`<div class="cart-action"><div class="cart-action-total"><span>${cart.reduce((s,i)=>s+i.qty,0)} товар(ов)</span><strong>${cartTotal().toLocaleString("ru-RU")} ₽</strong></div><button class="checkout-button" onclick="startCheckout()">💳 Перейти к оплате →</button><button class="back-button" style="width:100%;justify-content:center;margin:10px 0 0;background:#242630" onclick="continueShopping()">＋ Продолжить покупки</button></div>`;
+ 
+}
+function startCheckout(){if(!cart.length)return;previousPage="cartPage";showPage("checkoutPage")}
+function continueShopping(){showPage("allGamesPage")}
+function renderCheckout(){document.getElementById("checkoutSummary").innerHTML=`<div class="summary-row"><span>Товаров</span><span>${cart.reduce((s,i)=>s+i.qty,0)}</span></div><div class="summary-total"><span>К оплате</span><span>${cartTotal().toLocaleString("ru-RU")} ₽</span></div>`}
+function placeOrder(){
+ if(!cart.length)return;
+ const id=document.getElementById("playerId").value.trim(),nick=document.getElementById("playerNick").value.trim();
+ if(!id){showToast("Нужен ID игрока","Укажи Player ID для оформления заказа");return}
+ const payment=document.querySelector('input[name="payment"]:checked')?.value||"card";
+ const order={id:Date.now(),playerId:id,nick,payment,total:cartTotal(),items:JSON.parse(JSON.stringify(cart)),status:"Ожидает оплаты",date:new Date().toLocaleString("ru-RU")};
+ orders.unshift(order);cart=[];save();renderOrders();document.getElementById("profileOrderCount").textContent=orders.length;
+ showPage("ordersPage");showSuccess("Заказ создан!","Дальше откроется выбранный способ оплаты");setTimeout(()=>openPaymentScreen(order),750);
+}
+function openPaymentScreen(order){const method=order.payment==="crypto"?"₿ Криптовалюта":"💳 Банковская карта";document.getElementById("modalTitle").textContent=method;document.getElementById("modalText").textContent=`Заказ #${order.id.toString().slice(-6)}\\n\\nК оплате: ${order.total.toLocaleString("ru-RU")} ₽\\n\\nПлатёжный провайдер пока не подключён — это финальный экран перед интеграцией реальной оплаты.`;document.getElementById("modal").classList.add("show")}
+function renderOrders(){
+ const box=document.getElementById("ordersList");document.getElementById("profileOrderCount").textContent=orders.length;
+ if(!orders.length){box.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>Заказов пока нет</div></div>';return}
+ box.innerHTML=orders.map(o=>`<div class="cart-item"><div class="product-icon">📦</div><div class="cart-item-main"><div class="cart-item-name">Заказ #${o.id.toString().slice(-6)}</div><div class="cart-item-game">${o.items.map(i=>i.name+" ×"+i.qty).join(", ")}</div><div class="cart-item-game">${o.date} • ${o.status}</div></div><div class="cart-item-price">${o.total.toLocaleString("ru-RU")} ₽</div></div>`).join("");
+}
+function topUp(){showToast("Пополнение баланса","Подключим его вместе с реальной оплатой")}
+function showToast(title,text){document.getElementById("modalTitle").textContent="✅ "+title;document.getElementById("modalText").textContent=text;document.getElementById("modal").classList.add("show");document.querySelector(".modal-box").classList.add("toast-pop")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeModal()});
+updateCartBadge();renderOrders();
+</script>
+</body>
+</html>
